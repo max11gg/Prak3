@@ -1,0 +1,120 @@
+from os import system, name
+import time
+import maskpass 
+import smtplib as smtp
+import random
+import Regis
+import Authoriz
+
+def mainwindow():
+    _ = system('cls')
+    
+    try:
+        enter = int(input("Добро пожаловать \n"
+        "Выберите функцию: \n"
+        "1 - Регистрация\n"
+        "2 - Авторизация\n"
+        "3 - Выйти\n"))
+    except (KeyboardInterrupt, ValueError):
+        print("Введены неверные данные\n")
+        time.sleep(2)
+        mainwindow()
+    if (enter > 0 and enter <= 3):
+        match enter:
+            case 1:
+                print("Регистрация \n")
+                
+                email = input("Введите почту\n")
+                
+                if (not ("@" and ".") in email):
+                    print("Неверный ввод почты.")
+                    time.sleep(2)
+                    mainwindow()
+                
+                
+                #Посыл кода на почту
+                smtpEmail = "fm_test_email_send@mail.ru"
+                code = random.randint(100,999)
+                smptObj = smtp.SMTP("smtp.mail.ru", 587)
+                smptObj.starttls()
+                smptObj.login(smtpEmail, "aW6BceJkenh7hbz9ivjG")
+                smptObj.sendmail(smtpEmail, email, f"Your code {code}")
+                smptObj.quit()
+                print(code)
+                try:
+                    confirmCode = int(input("На указанную почту отправлен код подтверждения.\n"
+                      "Введите код\n"))
+                except ValueError:
+                    print("Введены неверные данные")
+                    time.sleep(2)
+                    mainwindow()
+                if code == confirmCode:
+
+                    try:
+                        password = maskpass.askpass(prompt="Введите пароль: \n", mask="*")
+                    except UnicodeDecodeError:
+                        print("Невернный ввод!")
+                        time.sleep(1)
+                        mainwindow()
+                    confirmPassword = maskpass.askpass(prompt="Подтвердите пароль: \n", mask="*")
+                    if (password == confirmPassword):
+                        place = 0
+                        Regis.Regss(email, password)
+                    else:
+                        print("Пароли не совпадают.")
+                        mainwindow()
+                else:
+                    print("Неверный код.")
+                    time.sleep(2)
+                    mainwindow()
+                
+            case 2:
+                print("Авторизация")
+                email = input("Введите почту \n")
+
+                if (not ("@" and ".") in email):
+                    print("Неверный ввод.")
+                    time.sleep(2)
+                    mainwindow()
+
+                #Посыл кода на почту
+                smtpEmail = "fm_test_email_send@mail.ru"
+                code = random.randint(100,999)
+                
+                smptObj = smtp.SMTP("smtp.mail.ru", 587)
+                smptObj.starttls()
+                smptObj.login(smtpEmail, "aW6BceJkenh7hbz9ivjG")
+                smptObj.sendmail(smtpEmail, email, f"Your code {code}")
+                smptObj.quit()
+                print(code)
+                try:
+                    confirmCode = int(input("На указанную почту отправлен код подтверждения.\n"
+                      "Введите код\n"))
+                except ValueError:
+                    print("Введены неверные данные")
+                    time.sleep(2)
+                    mainwindow()
+                if code == confirmCode:
+                    try:
+                        password = maskpass.askpass(prompt="Введите пароль: \n", mask="*")
+                    except UnicodeDecodeError:
+                        print("Неверный ввод!")
+                        time.sleep(1)
+                        mainwindow()
+                    place = 1
+                    Authoriz.Auth(email, password)
+                else:
+                    print("Неверный код.")
+                    time.sleep(2)
+                    mainwindow()
+            case 3:
+                print("Закрываем...\n")
+                time.sleep(2)
+                exit()
+            case _:
+                mainwindow()
+    else:
+        print("Неверный ввод")
+        time.sleep(1)
+        mainwindow()
+mainwindow()
